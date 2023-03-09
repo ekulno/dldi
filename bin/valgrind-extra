@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+function usage(){
+    echo "This script runs a full valgrind check on the given program and outputs the result gently."
+    echo "Example usage: ~/triply/hdt/bin/valgrind ~/triply/hdt/cpp/hdt/Release/bin/hdt2rdf f.hdt f.ttl"
+}
+
+if [ $# -eq 0 ]; then
+    echoerr "No arguments provided"
+    usage
+    exit 1
+fi
+
+rm -f /tmp/valgrind-out.txt
+
+set +e
+valgrind --leak-check=full \
+         --show-leak-kinds=all \
+         --track-origins=yes \
+         --verbose \
+         --dsymutil=yes \
+         --log-file=/tmp/valgrind-out.txt \
+         $@
+exitCode=$?
+set -e
+
+
+echo "Hit enter to view valgrind output"
+read foo
+cat /tmp/valgrind-out.txt
+exit $exitCode

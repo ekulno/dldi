@@ -1,0 +1,35 @@
+---
+# This file defines what clang-tidy warns us about. 
+# VS Code uses this file to show warnings. 
+
+Checks: >
+
+# warn us about all code style issues
+*,
+
+# except... 
+
+-clang-diagnostic-braced-scalar-init,
+-fuchsia-default-arguments-calls,
+-fuchsia-default-arguments-declarations,
+-fuchsia-overloaded-operator,
+-fuchsia-trailing-return,
+-google-default-arguments,
+-google-readability-namespace-comments,
+-google-readability-todo,
+-hicpp-signed-bitwise,
+-llvmlibc-callee-namespace,
+-llvm-header-guard,
+-llvmlibc-implementation-in-namespace,
+-llvm-namespace-comment,
+-llvmlibc-restrict-system-libc-headers,
+-readability-implicit-bool-conversion,
+-readability-inconsistent-declaration-parameter-name,
+-readability-redundant-control-flow,
+
+# typical and clear variables get warnings, e.g. id in CSD_Cache::id_to_string(const std::size_t id)
+-readability-identifier-length
+
+FormatStyle: none
+HeaderFilterRegex: ''
+WarningsAsErrors: ''

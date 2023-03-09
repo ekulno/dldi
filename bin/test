@@ -1,0 +1,49 @@
+#!/bin/bash 
+set -e
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+cd $SCRIPT_DIR/..
+
+rm -rf /tmp/dldi-test 
+mkdir -p /tmp/dldi-test 
+
+rm -rf /tmp/dldi-test-2
+mkdir -p /tmp/dldi-test-2
+
+rm -rf /tmp/dldi-merge-out
+mkdir -p /tmp/dldi-merge-out
+
+# DATA_FILE=./ld.ttl
+DATA_FILE=./data/data.ttl
+
+echo "Compose from PTLD"
+# ./bin/valgrind-extra \
+./Release/dldi compose -a $DATA_FILE /tmp/dldi-test
+
+ls -l /tmp/dldi-test
+
+echo "Query terms"
+# ./bin/valgrind-extra \
+./Release/dldi query terms -s -p -o -r 'a' /tmp/dldi-test
+
+echo "Query triples"
+# ./bin/valgrind-extra \
+./Release/dldi query triples /tmp/dldi-test 
+
+echo "Merge two DLDIs: create second dldi"
+# ./bin/valgrind-extra \
+./Release/dldi compose -a ./data/ld.ttl /tmp/dldi-test-2
+echo "Merge two DLDIs: do merge"
+# ./bin/valgrind-extra \
+./Release/dldi compose -a /tmp/dldi-test -a /tmp/dldi-test-2 /tmp/dldi-merge-out
+
+echo "Query terms in merge result"
+# ./bin/valgrind-extra \
+./Release/dldi query terms -s -p -o -r 'a' /tmp/dldi-merge-out
+
+echo "Query triples in merge result"
+# ./bin/valgrind-extra \
+./Release/dldi query triples /tmp/dldi-merge-out
+
+echo "Success"

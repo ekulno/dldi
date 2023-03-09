@@ -1,0 +1,6 @@
+<a:a1> <b:b> <c:c> .
+<a:a2> <b:b> <ac:c> .
+<hxa:a2> <hxb:b> <hxc:c> .
+<a:a1> <b:b> <c:c> .
+<a:a2> <b:b> <ac:c> .
+<hxa:a2> <hxb:b> <hxc:c> .

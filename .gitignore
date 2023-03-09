@@ -1,0 +1,11 @@
+.cache
+
+# a folder which gets created in `pwd` when running `ctest` locally
+Testing
+
+Release
+Debug
+
+compile_commands.json
+
+tests/*/tmp

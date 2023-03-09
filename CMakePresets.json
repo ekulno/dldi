@@ -1,0 +1,99 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 25,
+      "patch": 2
+    },
+    "configurePresets": [
+        {
+        "cacheVariables": {
+          "CMAKE_INSTALL_PREFIX": "/usr"
+        },
+        "generator": "Ninja",
+        "name": "generic"
+      },
+      {
+        "binaryDir": "Debug",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug"
+        },
+        "inherits": "generic",
+        "name": "Debug"
+      },
+      {
+        "binaryDir": "Release",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release"
+        },
+        "inherits": "generic",
+        "name": "Release"
+      }
+    ],
+    "buildPresets" : [
+      {
+        "configurePreset": "Debug",
+        "name": "Debug"
+      },
+      {
+        "configurePreset": "Release",
+        "name": "Release"
+      }
+    ],
+    "testPresets": [
+      {
+        "execution": {
+          "jobs": 10
+        },
+        "hidden": true,
+        "name": "generic",
+        "output": {
+          "outputOnFailure": true,
+          "shortProgress": false
+        }
+      },
+      {
+        "hidden": true,
+        "inherits": "generic",
+        "filter": {
+          "exclude": {
+            "name": "benchmark"
+          }
+        },
+        "name": "tests"
+      },
+      {
+        "configurePreset": "Debug",
+        "execution": {
+          "timeout": 2
+        },
+        "inherits": "tests",
+        "name": "Debug"
+      },
+      {
+        "configurePreset": "Release",
+        "execution": {
+          "timeout": 1
+        },
+        "inherits": "tests",
+        "name": "Release"
+      },
+      {
+        "configurePreset": "Release",
+        "execution": {
+          "timeout": 10
+        },
+        "filter": {
+          "include": {
+            "name": "benchmark"
+          }
+        },
+        "inherits": "generic",
+        "name": "benchmark",
+        "output": {
+          "verbosity": "verbose"
+        }
+      }
+    ]
+  }
+  

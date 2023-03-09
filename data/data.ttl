@@ -1,0 +1,49 @@
+<https://triplydb.com/Triply/value/AtomicValue> <http://www.w3.org/2000/01/rdf-schema#comment> "The class of non-composed or atomic values, i.e., values that are composed or exactly one simple value."@en .
+<https://triplydb.com/Triply/value/AtomicValue> <http://www.w3.org/2000/01/rdf-schema#label> "Atomic value"@en .
+<https://triplydb.com/Triply/value/AtomicValue> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/Value> .
+<https://triplydb.com/Triply/value/CompoundValue> <http://www.w3.org/2000/01/rdf-schema#label> "Compound value"@en .
+<https://triplydb.com/Triply/value/CompoundValue> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/Value> .
+<https://triplydb.com/Triply/value/Infinity> <http://www.w3.org/2000/01/rdf-schema#comment> "The class of simple infinite values."@en .
+<https://triplydb.com/Triply/value/Infinity> <http://www.w3.org/2000/01/rdf-schema#label> "Infinity"@en .
+<https://triplydb.com/Triply/value/Infinity> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/AtomicValue> .
+<https://triplydb.com/Triply/value/Interval> <http://www.w3.org/2000/01/rdf-schema#comment> "The class of all interval values, i.e., complex values that are composed of examply two simple values.  The first value denotes the beginning of the interval; the second value denotes the end of the interval."@en .
+<https://triplydb.com/Triply/value/Interval> <http://www.w3.org/2000/01/rdf-schema#label> "Interval value"@en .
+<https://triplydb.com/Triply/value/Interval> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/CompoundValue> .
+<https://triplydb.com/Triply/value/Value> <http://www.w3.org/2000/01/rdf-schema#comment> "The generic class of all values, whether simple or complex."@en .
+<https://triplydb.com/Triply/value/Value> <http://www.w3.org/2000/01/rdf-schema#label> "Value"@en .
+<https://triplydb.com/Triply/value/Value> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://www.w3.org/2000/01/rdf-schema#Resource> .
+<https://triplydb.com/Triply/value/ClosedInterval> <http://www.w3.org/2000/01/rdf-schema#comment> "The class of all closed intervals, i.e., intervals whose two simple values are neither minus infinity nor plus infinity."@en .
+<https://triplydb.com/Triply/value/ClosedInterval> <http://www.w3.org/2000/01/rdf-schema#label> "Closed interval"@en .
+<https://triplydb.com/Triply/value/ClosedInterval> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/OpenInterval> <http://www.w3.org/2000/01/rdf-schema#comment> "The class of all open interval values, i.e., intervals where at least one of the simple values is (positive or negative) infinity."@en .
+<https://triplydb.com/Triply/value/OpenInterval> <http://www.w3.org/2000/01/rdf-schema#label> "Open interval"@en .
+<https://triplydb.com/Triply/value/OpenInterval> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/higherExclusive> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://triplydb.com/Triply/value/higherExclusive> <http://www.w3.org/2000/01/rdf-schema#comment> "The higher exclusive value of an interval."@en .
+<https://triplydb.com/Triply/value/higherExclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/higherExclusive> <http://www.w3.org/2000/01/rdf-schema#label> "Has higher exclusive value"@en .
+<https://triplydb.com/Triply/value/higherExclusive> <http://www.w3.org/2000/01/rdf-schema#range> <https://triplydb.com/Triply/value/AtomicValue> .
+<https://triplydb.com/Triply/value/higherInclusive> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://triplydb.com/Triply/value/higherInclusive> <http://www.w3.org/2000/01/rdf-schema#comment> "The higher inclusive value of an interval."@en .
+<https://triplydb.com/Triply/value/higherInclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/higherInclusive> <http://www.w3.org/2000/01/rdf-schema#label> "Has higher inclusive value"@en .
+<https://triplydb.com/Triply/value/higherInclusive> <http://www.w3.org/2000/01/rdf-schema#range> <https://triplydb.com/Triply/value/AtomicValue> .
+<https://triplydb.com/Triply/value/infinity> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://triplydb.com/Triply/value/Infinity> .
+<https://triplydb.com/Triply/value/infinity> <http://www.w3.org/2000/01/rdf-schema#label> "Positive infinity"@en .
+<https://triplydb.com/Triply/value/lowerExclusive> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://triplydb.com/Triply/value/lowerExclusive> <http://www.w3.org/2000/01/rdf-schema#comment> "The lower exlcusive value of an interval."@en .
+<https://triplydb.com/Triply/value/lowerExclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/lowerExclusive> <http://www.w3.org/2000/01/rdf-schema#label> "Has lower exclusive value"@en .
+<https://triplydb.com/Triply/value/lowerExclusive> <http://www.w3.org/2000/01/rdf-schema#range> <https://triplydb.com/Triply/value/AtomicValue> .
+<https://triplydb.com/Triply/value/lowerInclusive> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://triplydb.com/Triply/value/lowerInclusive> <http://www.w3.org/2000/01/rdf-schema#comment> "The lower exlcusive value of an interval."@en .
+<https://triplydb.com/Triply/value/lowerInclusive> <http://www.w3.org/2000/01/rdf-schema#domain> <https://triplydb.com/Triply/value/Interval> .
+<https://triplydb.com/Triply/value/lowerInclusive> <http://www.w3.org/2000/01/rdf-schema#label> "Has lower inclusive value"@en .
+<https://triplydb.com/Triply/value/lowerInclusive> <http://www.w3.org/2000/01/rdf-schema#range> <https://triplydb.com/Triply/value/AtomicValue> .
+<https://triplydb.com/Triply/value/minusInfinity> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://triplydb.com/Triply/value/Infinity> .
+<https://triplydb.com/Triply/value/minusInfinity> <http://www.w3.org/2000/01/rdf-schema#label> "Negative infinity"@en .
+<https://triplydb.com/Triply/value/unit> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#ObjectProperty> .
+<https://triplydb.com/Triply/value/unit> <http://www.w3.org/2000/01/rdf-schema#comment> "The relationship between a value and the unit of measure in which it is expressed."@en .
+<https://triplydb.com/Triply/value/unit> <http://www.w3.org/2000/01/rdf-schema#domain> <https://triplydb.com/Triply/value/Value> .
+<https://triplydb.com/Triply/value/unit> <http://www.w3.org/2000/01/rdf-schema#label> "Has unit of measure"@en .
+<https://triplydb.com/Triply/value/unit> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2000/01/rdf-schema#Datatype> .

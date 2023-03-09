@@ -1,0 +1,7 @@
+@prefix ex: <http://example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:t1 ex:pred1 ex:t1 .
+ex:t1 ex:pred1 ex:t2 .
+ex:t1 ex:pred1 "woop" .
+ex:t2 ex:pred1 "2"^^xsd:integer .
