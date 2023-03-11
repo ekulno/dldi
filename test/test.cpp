@@ -5,9 +5,14 @@
 #include <DLDI.hpp>
 
 TEST_CASE("Creating DLDIs from plain-text linked data") {
-    auto filepath = GENERATE("foo");
-    REQUIRE("foo" == filepath);
-    REQUIRE(std::string{"foo"}.size()==3);
-    // const auto dldi_path{std::filesystem::path{filepath}};
-    // dldi::DLDI dldi{dldi_path};
+    std::string filepath = GENERATE("add-1.ttl", "add-2.ttl");
+    const std::filesystem::path ptld_path{"data/" + filepath};
+    const std::filesystem::path dldi_path{"tmp-dldi-"+filepath};
+    dldi::DLDI::from_ptld(ptld_path, dldi_path, "https://example.org/");
+    dldi::DLDI{dldi_path};
+}
+
+TEST_CASE("Should throw when opening DLDI over non-dir") {
+    const std::filesystem::path dldi_path{"not-a-dir"};
+    REQUIRE_THROWS_WITH(dldi::DLDI{dldi_path}, "Not a directory: "+dldi_path.string());
 }

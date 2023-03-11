@@ -20,6 +20,7 @@
 
 #include "./rdf/SerdParser.hpp"
 #include "./triples/TriplesWriter.hpp"
+#include "./triples/TriplesReader.hpp"
 #include <dictionary/Dictionary.hpp>
 
 #include "./Composer.hpp"
@@ -75,13 +76,15 @@ namespace dldi {
       base_iri,
       parser_type(input_path.extension())};
 
-    for (auto order: {dldi::TripleOrder::SPO, dldi::TripleOrder::SOP, dldi::TripleOrder::PSO, dldi::TripleOrder::POS, dldi::TripleOrder::OPS, dldi::TripleOrder::OSP}) {
-      triples.sort(subjects, predicates, objects, order);
-      triples.save(output_path.string() + "/" + get_triples_name(order) + ".triples");
+    std::filesystem::create_directory(output_path);
+
+    for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
+      triples.sort(subjects, predicates, objects, order);;
+      triples.save(dldi::TriplesReader::triples_file_path(output_path, order));
     }
 
-    subjects.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::subject) + ".dictionary");
-    predicates.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::predicate) + ".dictionary");
-    objects.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::object) + ".dictionary");
+    subjects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::subject));
+    predicates.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::predicate));
+    objects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::object));
   }
 }
