@@ -79,10 +79,18 @@ namespace dldi {
     return dldi::AnyPositionTermIterator(iterators);
   }
   auto DLDI::string_to_id(const std::string& term, const dldi::TripleTermPosition& position) const -> std::size_t {
-    return get_dict(position)->string_to_id(term);
+    const auto dict{get_dict(position)};
+    if (!dict){
+      throw std::runtime_error("Dict isn't loaded");
+    }
+    return dict->string_to_id(term);
   }
   auto DLDI::id_to_string(const std::size_t& id, const dldi::TripleTermPosition& position) const -> std::string {
-    return get_dict(position)->id_to_string(id);
+    const auto dict{get_dict(position)};
+    if (!dict){
+      throw std::runtime_error("Dict isn't loaded");
+    }
+    return dict->id_to_string(id);
   }
   auto DLDI::ensure_loaded(const dldi::TripleTermPosition& position) -> void {
     if (get_dict(position)) {

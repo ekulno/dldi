@@ -11,7 +11,7 @@ namespace dldi {
     StreamWriter(const std::filesystem::path& outpath)
       : m_out{outpath, std::ios::binary | std::ios::trunc} {
       if (!m_out.good()) {
-        throw std::runtime_error("Error opening file to save data");
+        throw std::runtime_error("Error opening file to save data: " + outpath.string());
       }
     }
     ~StreamWriter() {

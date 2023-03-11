@@ -309,11 +309,13 @@ namespace dldi {
     const auto largest_predicate_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::predicate)};
     const auto largest_object_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::object)};
 
+
+
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::subject, largest_subject_index);
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::predicate, largest_predicate_index);
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::object, largest_object_index);
 
-    for (auto order: {dldi::TripleOrder::SPO, dldi::TripleOrder::SOP, dldi::TripleOrder::PSO, dldi::TripleOrder::POS, dldi::TripleOrder::OPS, dldi::TripleOrder::OSP}) {
+    for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
       merge_triples(add_dldis, rem_dldis, output_dir, largest_subject_index, largest_predicate_index, largest_object_index, order);
     }
 

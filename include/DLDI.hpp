@@ -71,8 +71,8 @@ namespace dldi {
      * Compose a DLDI instance from sets of resources which should be added and subtracted.
     */
     static auto compose(
-      const std::vector<dldi::SourceInfo>& additions,
-      const std::vector<dldi::SourceInfo>& subtractions,
+      const std::vector<std::filesystem::path>& additions,
+      const std::vector<std::filesystem::path>& subtractions,
       const std::filesystem::path& output_path) -> void;
 
     /**
