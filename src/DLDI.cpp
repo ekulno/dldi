@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 
 #include <DLDI.hpp>
 
@@ -8,6 +9,11 @@
 namespace dldi {
   DLDI::DLDI(const std::filesystem::path& data_dir)
     : m_datadir{data_dir} {
+      if (!std::filesystem::is_directory(data_dir)){
+        throw std::runtime_error("Not a directory: " + data_dir.string());
+      }
+      dldi::Dictionary::validate_dir(data_dir);
+      dldi::TriplesReader::validate_dir(data_dir);
   }
 
   auto DLDI::get_triples(const dldi::TripleOrder& order) const -> std::shared_ptr<TriplesReader> {
@@ -73,18 +79,25 @@ namespace dldi {
     return dldi::AnyPositionTermIterator(iterators);
   }
   auto DLDI::string_to_id(const std::string& term, const dldi::TripleTermPosition& position) const -> std::size_t {
-    return get_dict(position)->string_to_id(term);
+    const auto dict{get_dict(position)};
+    if (!dict){
+      throw std::runtime_error("Dict isn't loaded");
+    }
+    return dict->string_to_id(term);
   }
   auto DLDI::id_to_string(const std::size_t& id, const dldi::TripleTermPosition& position) const -> std::string {
-    return get_dict(position)->id_to_string(id);
+    const auto dict{get_dict(position)};
+    if (!dict){
+      throw std::runtime_error("Dict isn't loaded");
+    }
+    return dict->id_to_string(id);
   }
   auto DLDI::ensure_loaded(const dldi::TripleTermPosition& position) -> void {
     if (get_dict(position)) {
       return;
     }
 
-    const auto dict_path{m_datadir.string() + "/" + get_dict_name(position) + ".dictionary"};
-    const auto dict{std::make_shared<Dictionary>(dict_path)};
+    const auto dict{std::make_shared<Dictionary>(dldi::Dictionary::dictionary_file_path(m_datadir, position))};
     
     if (position == dldi::TripleTermPosition::subject) {
       m_subjects = dict;
@@ -106,8 +119,7 @@ namespace dldi {
     if (get_triples(order)) {
       return;
     }
-    const std::filesystem::path triples_file_path{m_datadir.string() + "/" + get_triples_name(order) + ".triples"};
-    const auto reader{std::make_shared<TriplesReader>(triples_file_path)};
+    const auto reader{std::make_shared<TriplesReader>(dldi::TriplesReader::triples_file_path(m_datadir, order))};
     if (order == dldi::TripleOrder::SPO) {
       m_triples_spo = reader;
     } else if (order == dldi::TripleOrder::SOP) {

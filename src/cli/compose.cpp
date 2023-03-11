@@ -8,26 +8,6 @@ auto dldi::DldiCli::help_compose() -> void {
             << "        -B, --base-iri <base-IRI>   Base IRI of the dataset." << std::endl;
 }
 
-inline auto get_source_info(const std::filesystem::path& path) -> dldi::SourceInfo {
-  dldi::SourceInfo info;
-  info.path = path;
-  if (std::filesystem::is_directory(path)) {
-    info.size = std::filesystem::file_size(path.string() + "/spo.triples");
-    info.type = dldi::SourceType::DynamicLinkedDataIndex;
-    return info;
-  }
-
-  if (std::filesystem::is_regular_file(path)) {
-    info.size = std::filesystem::file_size(path);
-    if (path.string().find(".sorted") != path.string().npos) {
-      info.type = dldi::SourceType::PlainTextLinkedData_Sorted;
-      return info;
-    }
-    info.type = dldi::SourceType::PlainTextLinkedData_Unsorted;
-    return info;
-  }
-  throw std::runtime_error("Path doesn't exist: " + path.string());
-}
 
 auto dldi::DldiCli::compose(int argc, char** argv) -> int {
   std::string base_iri;
@@ -68,15 +48,6 @@ auto dldi::DldiCli::compose(int argc, char** argv) -> int {
   }
   const auto output_path{std::filesystem::path{argv[argc - 1]}};
 
-  std::vector<dldi::SourceInfo> addition_sources;
-  for (const auto path: addition_paths) {
-    addition_sources.push_back(get_source_info(path));
-  }
-  std::vector<dldi::SourceInfo> subtraction_sources;
-  for (const auto path: subtraction_paths) {
-    subtraction_sources.push_back(get_source_info(path));
-  }
-
-  dldi::DLDI::compose(addition_sources, subtraction_sources, output_path);
+  dldi::DLDI::compose(addition_paths, subtraction_paths, output_path);
   return EXIT_SUCCESS;
 }

@@ -3,7 +3,7 @@
     "cmakeMinimumRequired": {
       "major": 3,
       "minor": 25,
-      "patch": 2
+      "patch": 1
     },
     "configurePresets": [
         {
@@ -28,6 +28,14 @@
         },
         "inherits": "generic",
         "name": "Release"
+      },
+      {
+        "binaryDir": "RelWithDebInfo",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        },
+        "inherits": "generic",
+        "name": "RelWithDebInfo"
       }
     ],
     "buildPresets" : [
@@ -38,6 +46,10 @@
       {
         "configurePreset": "Release",
         "name": "Release"
+      },
+      {
+        "configurePreset": "RelWithDebInfo",
+        "name": "RelWithDebInfo"
       }
     ],
     "testPresets": [
@@ -55,11 +67,6 @@
       {
         "hidden": true,
         "inherits": "generic",
-        "filter": {
-          "exclude": {
-            "name": "benchmark"
-          }
-        },
         "name": "tests"
       },
       {
@@ -79,20 +86,12 @@
         "name": "Release"
       },
       {
-        "configurePreset": "Release",
+        "configurePreset": "RelWithDebInfo",
         "execution": {
-          "timeout": 10
+          "timeout": 1
         },
-        "filter": {
-          "include": {
-            "name": "benchmark"
-          }
-        },
-        "inherits": "generic",
-        "name": "benchmark",
-        "output": {
-          "verbosity": "verbose"
-        }
+        "inherits": "tests",
+        "name": "RelWithDebInfo"
       }
     ]
   }

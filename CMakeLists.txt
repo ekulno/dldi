@@ -1,6 +1,6 @@
 project(DLDI)
 
-cmake_minimum_required(VERSION 3.25.2)
+cmake_minimum_required(VERSION 3.25.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(lib-dldi)
@@ -102,3 +102,7 @@ install(TARGETS lib-dldi
 install(DIRECTORY include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.hpp")
+
+enable_testing()
+
+add_subdirectory(test)

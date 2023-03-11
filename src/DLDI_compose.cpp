@@ -19,19 +19,54 @@
 #include <DLDI.hpp>
 
 #include "./rdf/SerdParser.hpp"
+#include "./triples/TriplesReader.hpp"
 #include "./triples/TriplesWriter.hpp"
 #include <dictionary/Dictionary.hpp>
 
 #include "./Composer.hpp"
 
+inline auto get_source_info(const std::filesystem::path& path) -> dldi::SourceInfo {
+  dldi::SourceInfo info;
+  info.path = path;
+  if (std::filesystem::is_directory(path)) {
+    info.size = std::filesystem::file_size(dldi::TriplesReader::triples_file_path(path, dldi::TripleOrder::SPO));
+    info.type = dldi::SourceType::DynamicLinkedDataIndex;
+    return info;
+  }
+
+  if (std::filesystem::is_regular_file(path)) {
+    info.size = std::filesystem::file_size(path);
+    if (path.string().find(".sorted") != path.string().npos) {
+      info.type = dldi::SourceType::PlainTextLinkedData_Sorted;
+      return info;
+    }
+    info.type = dldi::SourceType::PlainTextLinkedData_Unsorted;
+    return info;
+  }
+  throw std::runtime_error("Path doesn't exist: " + path.string());
+}
 namespace dldi {
 
-  auto DLDI::compose(const std::vector<dldi::SourceInfo>& additions,
-                     const std::vector<dldi::SourceInfo>& subtractions,
+  auto DLDI::compose(const std::vector<std::filesystem::path>& addition_paths,
+                     const std::vector<std::filesystem::path>& subtraction_paths,
                      const std::filesystem::path& output_path) -> void {
+    std::vector<dldi::SourceInfo> additions;
+    for (const auto path: addition_paths) {
+      additions.push_back(get_source_info(path));
+    }
+    std::vector<dldi::SourceInfo> subtractions;
+    for (const auto path: subtraction_paths) {
+      subtractions.push_back(get_source_info(path));
+    }
+
     if (additions.empty()) {
       throw std::runtime_error("Need at least one additive source");
     }
+
+    if (std::filesystem::is_directory(output_path)){
+      throw std::runtime_error("There is already a directory at " + output_path.string());
+    }
+    std::filesystem::create_directories(output_path);
 
     // if there's only one positive and no negatives, then this must be a single-source ptld->dldi conversion.
     if (additions.size() == 1 && subtractions.size() == 0) {
@@ -75,13 +110,16 @@ namespace dldi {
       base_iri,
       parser_type(input_path.extension())};
 
-    for (auto order: {dldi::TripleOrder::SPO, dldi::TripleOrder::SOP, dldi::TripleOrder::PSO, dldi::TripleOrder::POS, dldi::TripleOrder::OPS, dldi::TripleOrder::OSP}) {
+    std::filesystem::create_directory(output_path);
+
+    for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
       triples.sort(subjects, predicates, objects, order);
-      triples.save(output_path.string() + "/" + get_triples_name(order) + ".triples");
+      ;
+      triples.save(dldi::TriplesReader::triples_file_path(output_path, order));
     }
 
-    subjects.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::subject) + ".dictionary");
-    predicates.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::predicate) + ".dictionary");
-    objects.save(output_path.string() + "/" + get_dict_name(dldi::TripleTermPosition::object) + ".dictionary");
+    subjects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::subject));
+    predicates.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::predicate));
+    objects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::object));
   }
 }

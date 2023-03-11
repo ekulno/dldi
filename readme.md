@@ -38,3 +38,11 @@ There is a need for a persistable and queryable linked-data format which support
 ./bin/test
 ./tests/merge-test-1/run.sh
 ```
+
+## Emulating the CI locally
+
+TODO set up actual CI. 
+
+```bash
+DOCKER_BUILDKIT=1 docker build --target ci .
+```

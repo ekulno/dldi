@@ -4,6 +4,7 @@
 #include "./BinaryStreamWriter.hpp"
 #include "./Composer.hpp"
 #include "./triples/TriplesWriter.hpp"
+#include "./triples/TriplesReader.hpp"
 #include <dictionary/Dictionary.hpp>
 
 namespace {
@@ -252,7 +253,7 @@ namespace {
       additions.at(largest_predicate_index)->get_dict(dldi::TripleTermPosition::predicate),
       additions.at(largest_object_index)->get_dict(dldi::TripleTermPosition::object),
       order};
-    dldi::StreamWriter<dldi::QuantifiedTriple> triples{output_path.string() + "/" + dldi::DLDI::get_triples_name(order) + ".triples"};
+    dldi::StreamWriter<dldi::QuantifiedTriple> triples{dldi::TriplesReader::triples_file_path(output_path, order)};
     while (add_iterator.has_next()) {
       auto add_next{add_iterator.read()};
 
@@ -308,11 +309,13 @@ namespace dldi {
     const auto largest_predicate_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::predicate)};
     const auto largest_object_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::object)};
 
+
+
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::subject, largest_subject_index);
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::predicate, largest_predicate_index);
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::object, largest_object_index);
 
-    for (auto order: {dldi::TripleOrder::SPO, dldi::TripleOrder::SOP, dldi::TripleOrder::PSO, dldi::TripleOrder::POS, dldi::TripleOrder::OPS, dldi::TripleOrder::OSP}) {
+    for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
       merge_triples(add_dldis, rem_dldis, output_dir, largest_subject_index, largest_predicate_index, largest_object_index, order);
     }
 
@@ -322,8 +325,8 @@ namespace dldi {
       apply_dict_removals(add_dldis.at(largest_object_index), rem_dldis, dldi::TripleTermPosition::object);
     }
 
-    add_dldis.at(largest_subject_index)->get_dict(dldi::TripleTermPosition::subject)->save(output_dir.string() + "/" + dldi::DLDI::get_dict_name(dldi::TripleTermPosition::subject) + ".dictionary");
-    add_dldis.at(largest_predicate_index)->get_dict(dldi::TripleTermPosition::predicate)->save(output_dir.string() + "/" + dldi::DLDI::get_dict_name(dldi::TripleTermPosition::predicate) + ".dictionary");
-    add_dldis.at(largest_object_index)->get_dict(dldi::TripleTermPosition::object)->save(output_dir.string() + "/" + dldi::DLDI::get_dict_name(dldi::TripleTermPosition::object) + ".dictionary");
+    add_dldis.at(largest_subject_index)->get_dict(dldi::TripleTermPosition::subject)->save(dldi::Dictionary::dictionary_file_path(output_dir, dldi::TripleTermPosition::subject));
+    add_dldis.at(largest_predicate_index)->get_dict(dldi::TripleTermPosition::predicate)->save(dldi::Dictionary::dictionary_file_path(output_dir, dldi::TripleTermPosition::predicate));
+    add_dldis.at(largest_object_index)->get_dict(dldi::TripleTermPosition::object)->save(dldi::Dictionary::dictionary_file_path(output_dir, dldi::TripleTermPosition::object));
   }
 }

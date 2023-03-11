@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+function usage
+{
+    echo "Bash into build/test container"
+    echo ""
+    echo "Usage:"
+    echo "  dldi-dev $(basename ${0})"
+    echo "   ";
+}
+
+function print_error
+{
+  echo "${1}" >&2
+  echo "" >&2
+  usage
+  exit 1
+}
+
+cd $BIN_DIR/..
+
+docker run --rm -it \
+    -v $(pwd):$(pwd) \
+    --workdir $(pwd) \
+    --rm -it \
+    dldi-builder \
+   /bin/bash
