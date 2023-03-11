@@ -4,8 +4,10 @@
 Testing
 
 Release
+RelWithDebInfo
 Debug
 
 compile_commands.json
 
 tests/*/tmp
+.vscode 

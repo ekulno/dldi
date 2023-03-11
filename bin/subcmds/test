@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e
+
+function usage
+{
+    echo "Test."
+    echo ""
+    echo "Usage:"
+    echo "  dldi-dev $(basename ${0}) [--help] [--memcheck] [--build-type (Release|Debug|RelWithDebInfo)]"
+    echo "   ";
+}
+
+function print_error
+{
+  echo "${1}" >&2
+  echo "" >&2
+  usage
+  exit 1
+}
+
+debug_memory=false
+build_type=RelWithDebInfo
+while [ -n "${1}" ]; do
+    case "${1}" in
+
+    -h | --help)
+      usage; 
+      exit 0;;
+
+    --debug-memory)
+      build_type=true;;
+
+    --build-type)
+      shift;
+      build_type="${1}";;
+
+    * )
+      print_error "Unrecognized token: ${1}"
+    
+    esac
+    shift
+done
+
+cd $BIN_DIR/..
+
+docker run --rm -it \
+    -v $(pwd):$(pwd) \
+    --workdir $(pwd) \
+    dldi-builder \
+    $(pwd)/bin/within-container/test $debug_memory $build_type
+

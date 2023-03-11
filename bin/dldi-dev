@@ -1,0 +1,40 @@
+#!/bin/bash
+set -e
+
+export BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SUBCOMMANDS=$(ls ${BIN_DIR}/subcmds)
+
+function usage
+{
+    echo "Run command for the development environment" 
+    echo
+    echo "Usage:"
+    echo "  $0 <command>"
+    echo 
+    echo 
+    echo "Commands:";
+    echo "${SUBCOMMANDS}" | sed 's/^/  - /'
+}
+
+function print_error
+{
+  echo "${1}" >&2
+  echo >&2
+  usage
+  exit 1
+}
+
+
+if [[ $1 == "--help" ]]; then 
+    usage 
+    exit 0
+fi
+
+subcommand=$BIN_DIR/subcmds/$1
+
+if [[ ! -f $subcommand ]]; then 
+    print_error "Unknown command"
+fi
+
+shift
+$subcommand "${@}"

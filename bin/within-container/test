@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+debug_memory=$1
+build_type=$2
+if [[ $build_type != "Debug" && $build_type != "Release" && $build_type != "RelWithDebInfo" ]]; then 
+    echo "Unrecognized build type: $build_type"
+    exit 1
+fi
+
+cd $build_type
+# We must call ctest from within the build folder, since that's where we find DartConfiguration.tcl
+# However, ctest will then not find cpp/CMakePresets.json. 
+# We therefore manually specify our CLI options, we can't use `--preset` option. 
+if [[ $debug_memory == true ]]; then 
+    # Remove any previous logs, to avoid confusion. 
+    rm -f Testing/Temporary/MemoryChecker.* 
+    ctest -j $(nproc) --overwrite MemoryCheckCommandOptions="--error-exitcode=1 --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes --verbose --dsymutil=yes" --overwrite MemoryCheckSuppressionFile=${1}/../valgrind.suppressions.$build_type -T memcheck --output-on-failure --short-progress --timeout 150
+else 
+    ctest -j $(nproc) --output-on-failure --short-progress --timeout 10
+fi

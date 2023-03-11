@@ -1,0 +1,47 @@
+#!/bin/bash
+set -e
+
+function usage
+{
+    echo "Build."
+    echo ""
+    echo "Usage:"
+    echo "  dldi-dev $(basename ${0}) [--help] [--build-type (Release|Debug|RelWithDebInfo)]"
+    echo "   ";
+}
+
+function print_error
+{
+  echo "${1}" >&2
+  echo "" >&2
+  usage
+  exit 1
+}
+
+build_type=RelWithDebInfo
+
+if [[ $1 == "--help" ]]; then 
+    usage 
+elif [[ $1 == "--build-type" ]]; then 
+    build_type=$2
+fi
+
+cd $BIN_DIR/..
+
+# We use the same username within the container as on the host, because the builds generate some 
+# absolute paths which must be the same within the container and on the host. 
+DOCKER_BUILDKIT=1 docker build \
+       --build-arg UNAME=$(whoami) \
+       --build-arg UID=$(id -u) \
+       --build-arg GID=$(id -g) \
+       --target base \
+       -t dldi-builder .
+
+docker run --rm -it \
+    -v $(pwd):$(pwd) \
+    --workdir $(pwd) \
+    dldi-builder \
+    $(pwd)/bin/within-container/build \
+    $build_type
+
+cp $build_type/compile_commands.json compile_commands.json

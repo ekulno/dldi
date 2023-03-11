@@ -21,10 +21,10 @@ namespace csd {
     if (nodeId >= m_mmapPointers.leaves.length) {
       /**
        * @brief We forbid removing statements (and by consequence, also terms) 
-       * that aren't already present in the HDT. 
+       * that aren't already present in the DLDI. 
        * Therefore, it's only possible to leaf nodes in the mmapped area. 
        */
-      throw std::runtime_error("Tried to remove term not present in original HDT");
+      throw std::runtime_error("Tried to remove term not present in original DLDI");
     }
     get_leafNode(nodeId)->occurences = 0;
     m_stats.numLeaves--;
