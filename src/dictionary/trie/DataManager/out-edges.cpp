@@ -6,12 +6,11 @@ namespace csd {
 
   auto DataManager::add_outEdge(const std::size_t& nodeId, const std::size_t& edgeId) const -> void {
     if (!m_outEdgesMap->contains(nodeId)) {
-      std::pair<std::size_t, std::vector<std::size_t>*> entry(nodeId, new std::vector<std::size_t>());
-      m_outEdgesMap->insert(entry);
+      m_outEdgesMap->insert({nodeId, std::make_shared<std::vector<std::size_t>>()});
     }
     get_internalNode(nodeId, true)->numOutEdges++;
 
-    auto* outEdges{m_outEdgesMap->at(nodeId)};
+    const auto outEdges{m_outEdgesMap->at(nodeId)};
     if (outEdges->empty()) {
       outEdges->push_back(edgeId);
       return;
@@ -32,9 +31,8 @@ namespace csd {
     if (!m_outEdgesMap->contains(nodeId)) {
       return;
     }
-    std::vector<std::size_t>* v{m_outEdgesMap->at(nodeId)};
+    const auto v{m_outEdgesMap->at(nodeId)};
     if (v->empty()) {
-      delete v;
       m_outEdgesMap->erase(nodeId);
       return;
     }
@@ -46,7 +44,7 @@ namespace csd {
     }
   }
 
-  auto DataManager::getNewOutEdges(const std::size_t& nodeId) const -> std::vector<std::size_t>* const {
+  auto DataManager::getNewOutEdges(const std::size_t& nodeId) const -> NewOutEdgesList {
     if (m_outEdgesMap == nullptr || !m_outEdgesMap->contains(nodeId)) {
       return nullptr;
     }

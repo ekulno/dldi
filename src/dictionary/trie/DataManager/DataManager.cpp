@@ -43,7 +43,7 @@ namespace csd {
         .outEdgeIds{
           .ptr{nullptr},
           .length{0}}},
-      m_outEdgesMap{new std::unordered_map<std::size_t, std::vector<std::size_t>*>},
+      m_outEdgesMap{std::make_unique<std::unordered_map<std::size_t, NewOutEdgesList>>()},
       m_loadTimeLeafHoles{std::vector<csd::Hole>()},
       m_finalLeafHoles{std::vector<csd::Hole>()},
       m_numNewLeafNodeDeletions{0},
@@ -58,10 +58,6 @@ namespace csd {
     free(m_buffers.internals.buf);
     free(m_buffers.leaves.buf);
     free(m_buffers.labels.buf);
-    for (auto element: *m_outEdgesMap) {
-      delete element.second;
-    }
-    delete m_outEdgesMap;
   }
   auto DataManager::getStats() const -> const TrieStats* const {
     return &m_stats;

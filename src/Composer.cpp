@@ -3,8 +3,8 @@
 
 #include "./BinaryStreamWriter.hpp"
 #include "./Composer.hpp"
-#include "./triples/TriplesWriter.hpp"
 #include "./triples/TriplesReader.hpp"
+#include "./triples/TriplesWriter.hpp"
 #include <dictionary/Dictionary.hpp>
 
 namespace {
@@ -43,107 +43,94 @@ namespace {
     }
   }
 
-  struct DT {
-    std::shared_ptr<dldi::TriplesIterator> iterator;
-    std::shared_ptr<dldi::Dictionary> subjects;
-    std::shared_ptr<dldi::Dictionary> predicates;
-    std::shared_ptr<dldi::Dictionary> objects;
+  class DT {
+  public:
+    DT(
+
+      std::shared_ptr<dldi::TriplesIterator> iterator,
+      std::shared_ptr<dldi::Dictionary> subjects,
+      std::shared_ptr<dldi::Dictionary> predicates,
+      std::shared_ptr<dldi::Dictionary> objects)
+      : m_iterator{iterator},
+        m_subjects{subjects},
+        m_predicates{predicates},
+        m_objects{objects} {
+    }
+    auto get_dict(const dldi::TripleTermPosition& position) const -> std::shared_ptr<dldi::Dictionary> {
+      if (position == dldi::TripleTermPosition::subject)
+        return m_subjects;
+      if (position == dldi::TripleTermPosition::predicate)
+        return m_predicates;
+      if (position == dldi::TripleTermPosition::object)
+        return m_objects;
+      throw std::runtime_error("Unrecognized position");
+    }
+    auto compare(const std::shared_ptr<DT> other, const dldi::TripleTermPosition& position) const -> int {
+      return get_dict(position)->compare(m_iterator->read().term(position), other->m_iterator->read().term(position), other->get_dict(position));
+    }
+    auto has_next() const -> bool {
+      return m_iterator->has_next();
+    }
+    auto read() const -> dldi::QuantifiedTriple {
+      return m_iterator->read();
+    }
+    auto proceed() -> void {
+      return m_iterator->proceed();
+    }
+
+  private:
+    std::shared_ptr<dldi::TriplesIterator> m_iterator;
+    std::shared_ptr<dldi::Dictionary> m_subjects;
+    std::shared_ptr<dldi::Dictionary> m_predicates;
+    std::shared_ptr<dldi::Dictionary> m_objects;
   };
+
+  inline auto triple_order_to_position_list(const dldi::TripleOrder& order) -> std::vector<dldi::TripleTermPosition> {
+    if (order == dldi::TripleOrder::SPO)
+      return {dldi::TripleTermPosition::subject, dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::object};
+    if (order == dldi::TripleOrder::SOP)
+      return {dldi::TripleTermPosition::subject, dldi::TripleTermPosition::object, dldi::TripleTermPosition::predicate};
+    if (order == dldi::TripleOrder::POS)
+      return {dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::object, dldi::TripleTermPosition::subject};
+    if (order == dldi::TripleOrder::PSO)
+      return {dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::subject, dldi::TripleTermPosition::object};
+    if (order == dldi::TripleOrder::OSP)
+      return {dldi::TripleTermPosition::object, dldi::TripleTermPosition::subject, dldi::TripleTermPosition::predicate};
+    if (order == dldi::TripleOrder::OPS)
+      return {dldi::TripleTermPosition::object, dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::subject};
+    throw std::runtime_error("Unrecognized order");
+  }
 
   class IdTriplesIteratorComparator {
   public:
     IdTriplesIteratorComparator(const dldi::TripleOrder& order)
-      : m_order{order} {
+      : m_order{order}, m_positions{triple_order_to_position_list(m_order)} {
     }
 
     [[nodiscard]] auto operator()(const std::shared_ptr<DT> lhs, const std::shared_ptr<DT> rhs) -> bool {
       // true: lhs should preceede rhs
       // false: rhs should preceede lhs
 
-      if (lhs->iterator->has_next() && !rhs->iterator->has_next())
+      if (lhs->has_next() && !rhs->has_next())
         return true;
-      if (!lhs->iterator->has_next() && rhs->iterator->has_next())
+      if (!lhs->has_next() && rhs->has_next())
         return false;
-      if (!lhs->iterator->has_next() && !rhs->iterator->has_next())
+      if (!lhs->has_next() && !rhs->has_next())
         return true;
+      // neither is depleted, check which's iterator is lexicographically first. 
 
-      if (m_order == dldi::TripleOrder::SPO) {
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        return true;
+      for (const auto position: m_positions) {
+        const auto comparison{lhs->compare(rhs, position)};
+        if (comparison != 0)
+          return comparison < 0;
       }
-      if (m_order == dldi::TripleOrder::SOP) {
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        return true;
-      }
-      if (m_order == dldi::TripleOrder::POS) {
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        return true;
-      }
-      if (m_order == dldi::TripleOrder::PSO) {
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        return true;
-      }
-      if (m_order == dldi::TripleOrder::OSP) {
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        return true;
-      }
-      if (m_order == dldi::TripleOrder::OPS) {
-        const auto object_comparison{lhs->objects->compare(lhs->iterator->read().object(), rhs->iterator->read().object(), rhs->objects)};
-        if (object_comparison != 0)
-          return object_comparison < 0;
-        const auto predicate_comparison{lhs->predicates->compare(lhs->iterator->read().predicate(), rhs->iterator->read().predicate(), rhs->predicates)};
-        if (predicate_comparison != 0)
-          return predicate_comparison < 0;
-        const auto subject_comparison{lhs->subjects->compare(lhs->iterator->read().subject(), rhs->iterator->read().subject(), rhs->subjects)};
-        if (subject_comparison != 0)
-          return subject_comparison < 0;
-        return true;
-      }
+      return true;
       throw std::runtime_error("Unrecognized order");
     }
 
   private:
     const dldi::TripleOrder m_order;
+    const std::vector<dldi::TripleTermPosition> m_positions;
   };
 
   inline auto largest_dict_index(std::vector<std::shared_ptr<dldi::DLDI>>& dldis, const dldi::TripleTermPosition& position) -> std::size_t {
@@ -183,12 +170,12 @@ namespace {
         dldi->ensure_loaded(dldi::TripleTermPosition::object);
         auto query_iterator{dldi->query_ptr(order)};
 
-        auto val = std::make_shared<DT>(DT{
-          query_iterator,
-          dldi->get_dict(dldi::TripleTermPosition::subject),
-          dldi->get_dict(dldi::TripleTermPosition::predicate),
-          dldi->get_dict(dldi::TripleTermPosition::object)});
-        m_dts.push_back(val);
+        m_dts.push_back(
+          std::make_shared<DT>(
+            query_iterator,
+            dldi->get_dict(dldi::TripleTermPosition::subject),
+            dldi->get_dict(dldi::TripleTermPosition::predicate),
+            dldi->get_dict(dldi::TripleTermPosition::object)));
       }
       std::sort(m_dts.begin(), m_dts.end(), m_comparator);
       m_has_next = !dldis.empty();
@@ -205,18 +192,18 @@ namespace {
       }
       m_has_next = true;
       auto dt{m_dts.at(0)};
-      auto id_next{dt->iterator->read()};
+      auto id_next{dt->read()};
 
       const dldi::QuantifiedTriple id_final{
-        dt->subjects == m_mapto_subjects_dict ? id_next.subject() : (m_mapto_subjects_dict->string_to_id(dt->subjects->id_to_string(id_next.subject()))),
-        dt->predicates == m_mapto_predicates_dict ? id_next.predicate() : (m_mapto_predicates_dict->string_to_id(dt->predicates->id_to_string(id_next.predicate()))),
-        dt->objects == m_mapto_objects_dict ? id_next.object() : (m_mapto_objects_dict->string_to_id(dt->objects->id_to_string(id_next.object()))),
+        dt->get_dict(dldi::TripleTermPosition::subject) == m_mapto_subjects_dict ? id_next.subject() : (m_mapto_subjects_dict->string_to_id(dt->get_dict(dldi::TripleTermPosition::subject)->id_to_string(id_next.subject()))),
+        dt->get_dict(dldi::TripleTermPosition::predicate) == m_mapto_predicates_dict ? id_next.predicate() : (m_mapto_predicates_dict->string_to_id(dt->get_dict(dldi::TripleTermPosition::predicate)->id_to_string(id_next.predicate()))),
+        dt->get_dict(dldi::TripleTermPosition::object) == m_mapto_objects_dict ? id_next.object() : (m_mapto_objects_dict->string_to_id(dt->get_dict(dldi::TripleTermPosition::object)->id_to_string(id_next.object()))),
         id_next.quantity()};
 
       m_next = id_final;
 
-      dt->iterator->proceed();
-      if (!dt->iterator->has_next()) {
+      dt->proceed();
+      if (!dt->has_next()) {
         m_dts.erase(m_dts.begin());
       } else {
         std::sort(m_dts.begin(), m_dts.end(), m_comparator);
@@ -308,8 +295,6 @@ namespace dldi {
     const auto largest_subject_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::subject)};
     const auto largest_predicate_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::predicate)};
     const auto largest_object_index{largest_dict_index(add_dldis, dldi::TripleTermPosition::object)};
-
-
 
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::subject, largest_subject_index);
     merge_dictionaries(add_dldis, dldi::TripleTermPosition::predicate, largest_predicate_index);

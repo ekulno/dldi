@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <vector>
 
 #include <dictionary/trie/DataTypes.hpp>
@@ -81,8 +82,7 @@ namespace csd {
 
     auto add_outEdge(const std::size_t& nodeId, const std::size_t& edgeId) const -> void;
     auto remove_outedge(const std::size_t& nodeId, const std::size_t& edgeId) const -> void;
-    [[nodiscard]] auto getNewOutEdges(const std::size_t& nodeId) const -> std::vector<std::size_t>* const;
-    // auto out_edges(const std::size_t& node_id) const -> csd::OutEdgeIterator;
+    [[nodiscard]] auto getNewOutEdges(const std::size_t& nodeId) const -> NewOutEdgesList;
 
     // Labels
 
@@ -99,7 +99,7 @@ namespace csd {
     TrieStats m_stats;
     TrieBuffers m_buffers;
     MmapPointers m_mmapPointers;
-    std::unordered_map<std::size_t, std::vector<std::size_t>*>* m_outEdgesMap;
+    std::unique_ptr<std::unordered_map<std::size_t, NewOutEdgesList>> m_outEdgesMap;
     std::vector<csd::Hole> m_loadTimeLeafHoles;
     std::vector<csd::Hole> m_finalLeafHoles;
     std::size_t m_numNewLeafNodeDeletions;

@@ -45,6 +45,12 @@ namespace dldi {
     auto object() const -> std::size_t {
       return m_object;
     }
+    auto term(const dldi::TripleTermPosition position) const -> std::size_t {
+      if (position==dldi::TripleTermPosition::subject) return subject();
+      if (position==dldi::TripleTermPosition::predicate) return predicate();
+      if (position==dldi::TripleTermPosition::object) return object();
+      throw std::runtime_error("Unrecognized triple-term-position");
+    }
     auto quantity() const -> std::size_t {
       return m_quantity;
     }

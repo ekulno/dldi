@@ -3,10 +3,14 @@
 
 #include <cstddef>
 #include <vector>
+#include <memory>
 
 #include <Iterator.hpp>
 
+
 namespace csd {
+
+  using NewOutEdgesList = std::shared_ptr<std::vector<std::size_t>>;
 
   class DataManager;
 
@@ -36,7 +40,7 @@ namespace csd {
 
   private:
     const DataManager* const m_data;
-    std::vector<std::size_t>* m_newEdges;
+    NewOutEdgesList m_newEdges;
     std::size_t m_newEdgesIndex;
   };
 
