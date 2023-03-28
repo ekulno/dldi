@@ -17,7 +17,6 @@ namespace dldi {
     SOP,
     PSO,
     POS,
-    OPS,
     OSP
   };
 
@@ -34,7 +33,7 @@ namespace dldi {
   };
   class EnumMapping {
   public:
-    static constexpr TripleOrder TRIPLE_ORDERS[]{TripleOrder::SPO, TripleOrder::SOP, TripleOrder::PSO, TripleOrder::POS, TripleOrder::OSP, TripleOrder::OPS};
+    static constexpr TripleOrder TRIPLE_ORDERS[]{TripleOrder::SPO, TripleOrder::SOP, TripleOrder::PSO, TripleOrder::POS, TripleOrder::OSP};
 
     static auto order_to_string(const dldi::TripleOrder& order) -> std::string {
       if (order == TripleOrder::SPO)
@@ -47,8 +46,6 @@ namespace dldi {
         return "POS";
       if (order == TripleOrder::OSP)
         return "OSP";
-      if (order == TripleOrder::OPS)
-        return "OPS";
       throw std::runtime_error("Unrecognized order");
     }
 

@@ -96,8 +96,6 @@ namespace {
       return {dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::subject, dldi::TripleTermPosition::object};
     if (order == dldi::TripleOrder::OSP)
       return {dldi::TripleTermPosition::object, dldi::TripleTermPosition::subject, dldi::TripleTermPosition::predicate};
-    if (order == dldi::TripleOrder::OPS)
-      return {dldi::TripleTermPosition::object, dldi::TripleTermPosition::predicate, dldi::TripleTermPosition::subject};
     throw std::runtime_error("Unrecognized order");
   }
 

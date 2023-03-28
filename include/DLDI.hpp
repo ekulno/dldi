@@ -114,7 +114,6 @@ namespace dldi {
        * In turn, this ensures that results are always ordered lexically
        * by s-p-o, while all results are found in a contiguous sequence. 
        * 
-       * NB: I think OPS can be dropped, due to overlapping use-cases with others. 
       */
 
       const auto s{std::get<0>(pattern) > 0};
@@ -150,7 +149,6 @@ namespace dldi {
     std::shared_ptr<TriplesReader> m_triples_pso;
     std::shared_ptr<TriplesReader> m_triples_pos;
     std::shared_ptr<TriplesReader> m_triples_osp;
-    std::shared_ptr<TriplesReader> m_triples_ops;
     std::filesystem::path m_datadir;
     auto get_triples(const dldi::TripleOrder& order) const -> std::shared_ptr<TriplesReader>;
   };

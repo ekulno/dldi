@@ -137,20 +137,6 @@ namespace dldi {
           return predicateComparison < 0;
 
         return true;
-      } else if (order == dldi::TripleOrder::OPS) {
-        const auto objectComparison{objects.compare(object(), rhs.object())};
-        if (objectComparison != 0)
-          return objectComparison < 0;
-
-        const auto predicateComparison{predicates.compare(predicate(), rhs.predicate())};
-        if (predicateComparison != 0)
-          return predicateComparison < 0;
-
-        const auto subjectComparison{subjects.compare(subject(), rhs.subject())};
-        if (subjectComparison != 0)
-          return subjectComparison < 0;
-
-        return true;
       }
       throw std::runtime_error("Unrecognized order");
     }

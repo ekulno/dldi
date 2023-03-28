@@ -114,7 +114,6 @@ namespace dldi {
 
     for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
       triples.sort(subjects, predicates, objects, order);
-      ;
       triples.save(dldi::TriplesReader::triples_file_path(output_path, order));
     }
 

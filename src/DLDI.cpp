@@ -27,8 +27,6 @@ namespace dldi {
       return m_triples_pos;
     if (order == dldi::TripleOrder::OSP)
       return m_triples_osp;
-    if (order == dldi::TripleOrder::OPS)
-      return m_triples_ops;
     throw std::runtime_error("Unaccounted-for order");
   }
 
@@ -130,8 +128,6 @@ namespace dldi {
       m_triples_pos = reader;
     } else if (order == dldi::TripleOrder::OSP) {
       m_triples_osp = reader;
-    } else if (order == dldi::TripleOrder::OPS) {
-      m_triples_ops = reader;
     } else {
       throw std::runtime_error("Unexpected order");
     }
