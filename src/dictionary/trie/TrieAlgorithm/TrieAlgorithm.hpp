@@ -20,6 +20,11 @@ namespace csd {
     static auto id_to_string(const DataManager* const data, const std::size_t& id, bool dontThrowOnNotFound = false) -> std::string;
     static auto extract_path(const DataManager* const data, const std::size_t& id, bool dontThrowOnNotFound = false) -> TriePath;
     static auto string_to_id(const DataManager* const data, const std::string& rdfTerm) -> std::pair<std::size_t, std::size_t>;
+    /**
+     * The first item, a std::size_t, is ID at which to start iteration
+     * The second item, a std::boolean, represents whether there is at least one result
+     * The third item, a std::boolean, represents whether the outnode is a leaf 
+    */
     static auto get_scope(const DataManager* const data, const std::string& prefix) -> std::tuple<std::size_t, bool, bool>;
     static auto compile_path_label(const DataManager* const data, const TriePath& path, bool dontThrowOnNotFound) -> std::string;
 

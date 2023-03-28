@@ -6,6 +6,11 @@
 namespace csd {
 
   auto DataManager::add_edge(const unsigned char* const rdfTerm, const std::size_t& from, const std::size_t& until, bool outNodeIsLeaf, const std::size_t& inNodeId, const std::size_t& outNodeId) -> std::size_t {
+    if (outNodeIsLeaf){
+      if (rdfTerm[until-1]!='\0'){
+        throw std::runtime_error("Expected last char of rdfTerm to be null char, since outNodeIsLeaf.");
+      }
+    }
     possibly_realloc(&m_buffers.edges);
     const auto bufferIndex{m_buffers.edges.length++};
     m_buffers.edges.buf[bufferIndex] = {
@@ -42,5 +47,21 @@ namespace csd {
   auto DataManager::edge_exists(const std::size_t& edgeId) const -> bool {
     auto* edge{get_item<struct Edge>(&m_mmapPointers.edges, &m_buffers.edges, edgeId)};
     return !edge->deleted;
+  }
+  auto DataManager::edge_to_string(const std::size_t& edge_id) const -> std::string {
+    // this function is only used for debugging. 
+    const auto*const edge{get_edge(edge_id)};
+    const auto*const label{get_label(edge_id)};
+    std::string s{};
+    for (std::size_t i{0}; i<edge->labelLength; i ++ ){
+      if (label[i]=='\0') {
+        if (i!=edge->labelLength-1){
+          throw std::runtime_error("Found null-byte in the middle of a edge label");
+        }
+        break;
+      }
+      s.push_back(label[i]);
+    }
+    return s;
   }
 }

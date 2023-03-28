@@ -15,7 +15,7 @@ namespace csd {
       // if we do that, we'll still have 1 internal node (root) and no leaves.
       rootId = data->add_internalNode(0);
     }
-    const auto edgeId{data->add_edge(reinterpret_cast<const unsigned char* const>(rdfTerm.c_str()), 0, rdfTerm.size(), true, rootId, 0)};
+    const auto edgeId{data->add_edge(reinterpret_cast<const unsigned char* const>(rdfTerm.c_str()), 0, rdfTerm.size() + 1, true, rootId, 0)};
     const auto leafNodeId{data->add_leafNode(edgeId, occurrences)};
     data->get_edge(edgeId)->outNodeId = leafNodeId;
     data->add_outEdge(rootId, edgeId);
@@ -23,7 +23,7 @@ namespace csd {
   }
 
   auto insertLeafNode(DataManager* data, const unsigned char* const key, std::size_t keyOffset, std::size_t keyLength, std::size_t inNodeId, const std::size_t& occurrences) -> std::size_t {
-    const auto newEdgeId{data->add_edge(key, keyOffset, keyLength, true, inNodeId, 0)};
+    const auto newEdgeId{data->add_edge(key, keyOffset, keyLength + 1, true, inNodeId, 0)};
     auto* newEdge{data->get_edge(newEdgeId)};
     const std::size_t newLeafNodeId{data->add_leafNode(newEdgeId, occurrences)};
     newEdge->outNodeId = newLeafNodeId;
@@ -38,7 +38,7 @@ namespace csd {
       return result;
     }
 
-    auto navigator = TrieNavigator(data);
+    TrieNavigator navigator{data};
 
     const auto* key{reinterpret_cast<const unsigned char* const>(term.c_str())};
     const auto keyLength{term.size()};

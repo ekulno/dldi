@@ -46,3 +46,11 @@ TODO set up actual CI.
 ```bash
 DOCKER_BUILDKIT=1 docker build --target ci .
 ```
+
+## Pushing to local docker registry
+
+This is needed for running the benchmark. 
+
+```bash
+DOCKER_BUILDKIT=1 docker build --target ci -t dldi:latest . 
+```

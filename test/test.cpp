@@ -47,6 +47,16 @@ TEST_CASE("Should compose from files to add and remove") {
                       tmpdir / "merged.dldi");
 }
 
+TEST_CASE("Should handle terms which are strict prefixes of another") {
+  const auto tmpdir{temporary_directory("prefixes")};
+  SECTION("case 1") {
+    dldi::DLDI::from_ptld("data/prefixed-1.nt", tmpdir / "prefixed-1.dldi", "https://example.org/");
+  }
+  SECTION("case 2") {
+    dldi::DLDI::from_ptld("data/prefixed-2.nt", tmpdir / "prefixed-2.dldi", "https://example.org/");
+  }
+}
+
 TEST_CASE("Should query merged dldi") {
   const auto tmpdir{temporary_directory("query")};
 

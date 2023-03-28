@@ -62,6 +62,7 @@ namespace csd {
     auto remove_edge(const std::size_t& edgeId) -> void;
     [[nodiscard]] auto get_edge(const std::size_t& edgeId, bool dontThrowOnNotFound = false) const -> Edge* const;
     [[nodiscard]] auto edge_exists(const std::size_t& edgeId) const -> bool;
+    auto edge_to_string(const std::size_t& edge_id) const -> std::string;
 
     // Internal nodes
 

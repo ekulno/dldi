@@ -12,11 +12,11 @@ namespace csd {
       lengths_sum += edge.second->labelLength;
     }
     std::string result;
-    result.reserve(lengths_sum);
+    result.reserve(lengths_sum-1);
     for (int index = triePath.size() - 1; index >= 0; index--) {
       const auto edge{triePath.at(index)};
       const auto* const edgeLabel{data->get_label(edge.first, edge.second, dontThrowOnNotFound)};
-      result += std::string{reinterpret_cast<const char* const>(edgeLabel), edge.second->labelLength};
+      result += std::string{reinterpret_cast<const char* const>(edgeLabel), edge.second->labelLength - (edge.second->outNodeIsLeaf?1:0)};
     }
     return result;
   }

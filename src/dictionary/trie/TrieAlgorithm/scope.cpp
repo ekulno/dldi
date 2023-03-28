@@ -22,6 +22,7 @@ namespace csd {
       if (comparisonResult == TermsShareNoPrefix) {
         // no prefix match here, but maybe on a following edge.
         if (comparator.labelIsLexicographicallyAfterKey() || !navigator.mayGoRight()) {
+          // there is no following edge, so no results. 
           return {0, false, false};
         }
         navigator.goRight();
@@ -32,12 +33,17 @@ namespace csd {
         // the path's label is a prefix of the search term
         // continue from this child.
         keyOffset += comparator.mismatchIndex();
+        if (keyOffset==prefix.size()){
+          const auto outNodeId{navigator.edge()->outNodeId};
+          return {outNodeId, true, navigator.edge()->outNodeIsLeaf};
+        }
         navigator.goDown();
         continue;
       }
 
       if (comparisonResult == TermsAreEqual || comparisonResult == SecondTermIsPrefixOfFirstTerm) {
         const auto outNodeId{navigator.edge()->outNodeId};
+        // there is exactly one result. 
         return {outNodeId, true, navigator.edge()->outNodeIsLeaf};
       }
 

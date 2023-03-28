@@ -11,7 +11,7 @@ namespace csd {
   }
   auto LabelComparator::compare(const unsigned char* const edgeLabel, const std::size_t& edgeLabelLength, const std::size_t& searchTermOffset) -> TermRelation {
     const auto* const s2{m_search_term.c_str() + searchTermOffset};
-    const auto s2len{m_search_term.size() - searchTermOffset};
+    const auto s2len{m_search_term.size() + 1 - searchTermOffset};
     for (m_mismatch_index = 0; m_mismatch_index < edgeLabelLength && m_mismatch_index < s2len; m_mismatch_index++) {
       if (edgeLabel[m_mismatch_index] != s2[m_mismatch_index]) {
         break;
