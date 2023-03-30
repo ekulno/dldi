@@ -20,11 +20,11 @@ namespace {
 
       auto dldi{dldis.at(i)};
       dldi->ensure_loaded(position);
-      auto terms{dldi->query("", position)};
-      while (terms.has_next()) {
-        const auto term{terms.read()};
+      auto terms{dldi->terms("", position)};
+      while (terms->has_next()) {
+        const auto term{terms->read()};
         aggregate_dict->add(term.first, term.second);
-        terms.proceed();
+        terms->proceed();
       }
     }
   }
@@ -34,11 +34,11 @@ namespace {
     std::vector<std::shared_ptr<dldi::DLDI>>& rem_dldis,
     const dldi::TripleTermPosition& position) -> void {
     for (const auto& rem_dldi: rem_dldis) {
-      auto terms{rem_dldi->query("", position)};
-      while (terms.has_next()) {
-        const auto term{terms.read()};
+      auto terms{rem_dldi->terms("", position)};
+      while (terms->has_next()) {
+        const auto term{terms->read()};
         main_dldi->get_dict(position)->remove(term.first, term.second);
-        terms.proceed();
+        terms->proceed();
       }
     }
   }
@@ -166,7 +166,7 @@ namespace {
         dldi->ensure_loaded(dldi::TripleTermPosition::subject);
         dldi->ensure_loaded(dldi::TripleTermPosition::predicate);
         dldi->ensure_loaded(dldi::TripleTermPosition::object);
-        auto query_iterator{dldi->query_ptr(order)};
+        auto query_iterator{dldi->search({0,0,0})};
 
         m_dts.push_back(
           std::make_shared<DT>(
@@ -226,6 +226,9 @@ namespace {
     const std::size_t& largest_predicate_index,
     const std::size_t& largest_object_index,
     const dldi::TripleOrder& order) -> void {
+
+throw std::runtime_error("Not supported anymore, todo support again");
+
     RemappedAggregateTriplesIterator add_iterator{
       additions,
       additions.at(largest_subject_index)->get_dict(dldi::TripleTermPosition::subject),
@@ -238,7 +241,7 @@ namespace {
       additions.at(largest_predicate_index)->get_dict(dldi::TripleTermPosition::predicate),
       additions.at(largest_object_index)->get_dict(dldi::TripleTermPosition::object),
       order};
-    dldi::StreamWriter<dldi::QuantifiedTriple> triples{dldi::TriplesReader::triples_file_path(output_path, order)};
+    // dldi::StreamWriter<dldi::QuantifiedTriple> triples{dldi::TriplesReader::triples_file_path(output_path, order)};
     while (add_iterator.has_next()) {
       auto add_next{add_iterator.read()};
 
@@ -255,7 +258,7 @@ namespace {
         rem_iterator.proceed();
       }
       if (add_next.quantity() > 0) {
-        triples.write(add_next);
+        // triples.write(add_next);
       }
     }
     if (rem_iterator.has_next()) {

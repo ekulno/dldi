@@ -67,7 +67,7 @@ auto dldi::DldiCli::query_triples(int argc, char** argv) -> int {
 
   const dldi::TriplePattern pattern{subject_id, predicate_id, object_id};
   dldi.prepare_for_query(pattern);
-  auto triple_iterator{dldi.query_ptr(pattern)};
+  auto triple_iterator{dldi.search(pattern)};
   while (triple_iterator->has_next()) {
     const auto triple{triple_iterator->read()};
     triple_iterator->proceed();

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <DLDI.hpp>
+#include <DLDI_Composer.hpp>
 
 // NB: avoid file path conflicts across tests.
 // Tests are run in parallel.
@@ -42,7 +43,7 @@ TEST_CASE("Should compose from files to add and remove") {
   dldi::DLDI::from_ptld("data/add-2.ttl", tmpdir / "add-2.dldi", "https://example.org/");
   dldi::DLDI::from_ptld("data/rem-1.ttl", tmpdir / "rem-1.dldi", "https://example.org/");
   dldi::DLDI::from_ptld("data/rem-2.ttl", tmpdir / "rem-2.dldi", "https://example.org/");
-  dldi::DLDI::compose(std::vector<std::filesystem::path>{tmpdir / "add-1.dldi", tmpdir / "add-2.dldi"},
+  dldi::DLDI_Composer::compose(std::vector<std::filesystem::path>{tmpdir / "add-1.dldi", tmpdir / "add-2.dldi"},
                       std::vector<std::filesystem::path>{tmpdir / "rem-1.dldi", tmpdir / "rem-2.dldi"},
                       tmpdir / "merged.dldi");
 }
@@ -57,35 +58,30 @@ TEST_CASE("Should handle terms which are strict prefixes of another") {
   }
 }
 
-TEST_CASE("Should query merged dldi") {
+TEST_CASE("Should query unmerged dldi") {
+
   const auto tmpdir{temporary_directory("query")};
 
-  dldi::DLDI::from_ptld("data/add-1.ttl", tmpdir / "add-1.dldi", "https://example.org/");
-  dldi::DLDI::from_ptld("data/add-2.ttl", tmpdir / "add-2.dldi", "https://example.org/");
-  dldi::DLDI::from_ptld("data/rem-1.ttl", tmpdir / "rem-1.dldi", "https://example.org/");
-  dldi::DLDI::from_ptld("data/rem-2.ttl", tmpdir / "rem-2.dldi", "https://example.org/");
-  dldi::DLDI::compose(std::vector<std::filesystem::path>{tmpdir / "add-1.dldi", tmpdir / "add-2.dldi"},
-                      std::vector<std::filesystem::path>{tmpdir / "rem-1.dldi", tmpdir / "rem-2.dldi"},
-                      tmpdir / "merged.dldi");
+  dldi::DLDI::from_ptld("data/combined.ttl", tmpdir / "combined.dldi", "https://example.org/");
 
-  dldi::DLDI dldi{tmpdir / "merged.dldi"};
+  dldi::DLDI dldi{tmpdir / "combined.dldi"};
 
   SECTION("term query 100"){
     dldi.ensure_loaded(dldi::TripleTermPosition::subject);
-    auto it{dldi.query("", true, false, false)};
+    auto it{dldi.terms("", true, false, false)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 3);
   }
   SECTION("term query 010"){
     dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
-    auto it{dldi.query("", false, true, false)};
+    auto it{dldi.terms("", false, true, false)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 2);
@@ -93,20 +89,20 @@ TEST_CASE("Should query merged dldi") {
   SECTION("term query 110"){
     dldi.ensure_loaded(dldi::TripleTermPosition::subject);
     dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
-    auto it{dldi.query("", true, true, false)};
+    auto it{dldi.terms("", true, true, false)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 5);
   }
   SECTION("term query 001"){
     dldi.ensure_loaded(dldi::TripleTermPosition::object);
-    auto it{dldi.query("", false, false, true)};
+    auto it{dldi.terms("", false, false, true)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 5);
@@ -114,10 +110,10 @@ TEST_CASE("Should query merged dldi") {
   SECTION("term query 101"){
     dldi.ensure_loaded(dldi::TripleTermPosition::subject);
     dldi.ensure_loaded(dldi::TripleTermPosition::object);
-    auto it{dldi.query("", true, false, true)};
+    auto it{dldi.terms("", true, false, true)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 6);
@@ -126,10 +122,10 @@ TEST_CASE("Should query merged dldi") {
     dldi.ensure_loaded(dldi::TripleTermPosition::subject);
     dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
     dldi.ensure_loaded(dldi::TripleTermPosition::object);
-    auto it{dldi.query("", true, true, true)};
+    auto it{dldi.terms("", true, true, true)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 8);
@@ -137,10 +133,10 @@ TEST_CASE("Should query merged dldi") {
   SECTION("term query 100 with prefix '\"2'"){
     dldi.ensure_loaded(dldi::TripleTermPosition::subject);
     dldi.ensure_loaded(dldi::TripleTermPosition::object);
-    auto it{dldi.query("\"2", true, false, true)};
+    auto it{dldi.terms("\"2", true, false, true)};
     auto num_results{0};
-    while (it.has_next()) {
-      const auto term{it.next()};
+    while (it->has_next()) {
+      const auto term{it->next()};
       ++num_results;
     }
     REQUIRE(num_results == 2);
@@ -148,7 +144,7 @@ TEST_CASE("Should query merged dldi") {
   SECTION("triple-pattern query 000"){
     const dldi::TriplePattern pattern{0, 0, 0};
     dldi.prepare_for_query(pattern);
-    auto it{dldi.query_ptr(pattern)};
+    auto it{dldi.search(pattern)};
     auto num_results{0};
     while (it->has_next()) {
       const auto triple{it->read()};
@@ -165,7 +161,7 @@ TEST_CASE("Should query merged dldi") {
       dldi.string_to_id("http://example.com/pred1", dldi::TripleTermPosition::predicate),
       0};
     dldi.prepare_for_query(pattern);
-    auto it{dldi.query_ptr(pattern)};
+    auto it{dldi.search(pattern)};
     auto num_results{0};
     while (it->has_next()) {
       const auto triple{it->read()};
@@ -178,7 +174,139 @@ TEST_CASE("Should query merged dldi") {
     dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
     const dldi::TriplePattern pattern{0, dldi.string_to_id("http://example.com/pred2", dldi::TripleTermPosition::predicate), 0};
     dldi.prepare_for_query(pattern);
-    auto it{dldi.query_ptr(pattern)};
+    auto it{dldi.search(pattern)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto triple{it->read()};
+      ++num_results;
+      it->proceed();
+    }
+    REQUIRE(num_results == 1);
+  }
+}
+
+TEST_CASE("Should query merged dldi") {
+  const auto tmpdir{temporary_directory("query")};
+
+  dldi::DLDI::from_ptld("data/add-1.ttl", tmpdir / "add-1.dldi", "https://example.org/");
+  dldi::DLDI::from_ptld("data/add-2.ttl", tmpdir / "add-2.dldi", "https://example.org/");
+  dldi::DLDI::from_ptld("data/rem-1.ttl", tmpdir / "rem-1.dldi", "https://example.org/");
+  dldi::DLDI::from_ptld("data/rem-2.ttl", tmpdir / "rem-2.dldi", "https://example.org/");
+  dldi::DLDI_Composer::compose(std::vector<std::filesystem::path>{tmpdir / "add-1.dldi", tmpdir / "add-2.dldi"},
+                      std::vector<std::filesystem::path>{tmpdir / "rem-1.dldi", tmpdir / "rem-2.dldi"},
+                      tmpdir / "merged.dldi");
+
+  dldi::DLDI dldi{tmpdir / "merged.dldi"};
+
+  SECTION("term query 100"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    auto it{dldi.terms("", true, false, false)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 3);
+  }
+  SECTION("term query 010"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
+    auto it{dldi.terms("", false, true, false)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 2);
+  }
+  SECTION("term query 110"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
+    auto it{dldi.terms("", true, true, false)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 5);
+  }
+  SECTION("term query 001"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::object);
+    auto it{dldi.terms("", false, false, true)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 5);
+  }
+  SECTION("term query 101"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    dldi.ensure_loaded(dldi::TripleTermPosition::object);
+    auto it{dldi.terms("", true, false, true)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 6);
+  }
+  SECTION("term query 111"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
+    dldi.ensure_loaded(dldi::TripleTermPosition::object);
+    auto it{dldi.terms("", true, true, true)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 8);
+  }
+  SECTION("term query 100 with prefix '\"2'"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    dldi.ensure_loaded(dldi::TripleTermPosition::object);
+    auto it{dldi.terms("\"2", true, false, true)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto term{it->next()};
+      ++num_results;
+    }
+    REQUIRE(num_results == 2);
+  }
+  SECTION("triple-pattern query 000"){
+    const dldi::TriplePattern pattern{0, 0, 0};
+    dldi.prepare_for_query(pattern);
+    auto it{dldi.search(pattern)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto triple{it->read()};
+      ++num_results;
+      it->proceed();
+    }
+    REQUIRE(num_results == 6);
+  }
+  SECTION("triple-pattern query 110"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::subject);
+    dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
+    const dldi::TriplePattern pattern{
+      dldi.string_to_id("http://example.com/t1", dldi::TripleTermPosition::subject),
+      dldi.string_to_id("http://example.com/pred1", dldi::TripleTermPosition::predicate),
+      0};
+    dldi.prepare_for_query(pattern);
+    auto it{dldi.search(pattern)};
+    auto num_results{0};
+    while (it->has_next()) {
+      const auto triple{it->read()};
+      ++num_results;
+      it->proceed();
+    }
+    REQUIRE(num_results == 2);
+  }
+  SECTION("triple-pattern query 010"){
+    dldi.ensure_loaded(dldi::TripleTermPosition::predicate);
+    const dldi::TriplePattern pattern{0, dldi.string_to_id("http://example.com/pred2", dldi::TripleTermPosition::predicate), 0};
+    dldi.prepare_for_query(pattern);
+    auto it{dldi.search(pattern)};
     auto num_results{0};
     while (it->has_next()) {
       const auto triple{it->read()};

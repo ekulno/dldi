@@ -110,6 +110,11 @@ namespace csd {
     }
   }
 
+  /**
+   * Returns negative if lhs < rhs 
+   * Returns positive if rhs < lhs 
+   * Returns 0 if lhs == rhs 
+  */
   auto Trie::compare(
     const std::size_t& exposedId1,
     const std::size_t& exposedId2) const -> int {
@@ -137,8 +142,8 @@ namespace csd {
     return result;
   }
 
-  auto Trie::suggestions(const std::string& prefix) const -> TermStringIterator {
-    return TermStringIterator(m_data, prefix);
+  auto Trie::suggestions(const std::string& prefix) const -> std::shared_ptr<TermStringIterator> {
+    return std::make_shared<TermStringIterator>(m_data, prefix);
   }
 
   auto Trie::getStats() const -> const TrieStats* const {

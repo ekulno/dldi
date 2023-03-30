@@ -44,8 +44,6 @@ target_sources(lib-dldi
     src/DLDI_compose.cpp
 
     src/triples/TriplesWriter.cpp
-    src/triples/TriplesReader.cpp
-    src/triples/TriplesIterator.cpp
 
     src/dictionary/Dictionary.cpp
 

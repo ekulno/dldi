@@ -39,7 +39,7 @@ namespace csd {
     auto insert(const std::string& rdfTerm, const std::size_t& occurences = 1) -> std::pair<std::size_t, bool>;
     auto remove(const std::size_t& id, const std::size_t& occurrences = 1) -> bool;
 
-    [[nodiscard]] auto suggestions(const std::string& prefix) const -> TermStringIterator;
+    [[nodiscard]] auto suggestions(const std::string& prefix) const -> std::shared_ptr<TermStringIterator>;
 
     [[nodiscard]] auto getStats() const -> const TrieStats* const;
     [[nodiscard]] auto getData() const -> const DataManager* const;

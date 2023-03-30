@@ -18,7 +18,7 @@ namespace dldi {
     ~Dictionary();
     auto string_to_id(const std::string& string) const -> std::size_t;
     auto id_to_string(const std::size_t& id) const -> std::string;
-    auto query(const std::string& prefix) const -> csd::TermStringIterator;
+    auto query(const std::string& prefix) const -> std::shared_ptr<csd::TermStringIterator>;
     auto add(const std::string& term, const std::size_t& quantity) -> std::size_t;
     auto remove(const std::string& term, const std::size_t& quantity) -> void;
     auto save(const std::filesystem::path& path) -> void;

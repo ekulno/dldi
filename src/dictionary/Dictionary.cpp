@@ -45,7 +45,7 @@ namespace dldi {
   auto Dictionary::id_to_string(const std::size_t& id) const -> std::string {
     return m_trie.id_to_string(id);
   }
-  auto Dictionary::query(const std::string& prefix) const -> csd::TermStringIterator {
+  auto Dictionary::query(const std::string& prefix) const -> std::shared_ptr<csd::TermStringIterator> {
     return m_trie.suggestions(prefix);
   }
   auto Dictionary::add(const std::string& term, const std::size_t& quantity) -> std::size_t {
@@ -68,10 +68,20 @@ namespace dldi {
     m_trie.save(out);
     out.close();
   }
+  /**
+   * Returns negative if lhs < rhs 
+   * Returns positive if rhs < lhs 
+   * Returns 0 if lhs == rhs 
+  */
   auto Dictionary::compare(const std::size_t& lhs, const std::size_t& rhs) const -> int {
     return m_trie.compare(lhs, rhs);
   }
 
+  /**
+   * Returns negative if lhs < rhs 
+   * Returns positive if rhs < lhs 
+   * Returns 0 if lhs == rhs 
+  */
   auto Dictionary::compare(const std::size_t& lhs, const std::size_t& rhs, const std::shared_ptr<dldi::Dictionary> rhs_dict) const -> int {
     const auto lhs_tp{csd::TrieAlgorithm::extract_path(m_trie.getData(), lhs - 1)};
     const auto rhs_tp{csd::TrieAlgorithm::extract_path(rhs_dict->m_trie.getData(), rhs - 1)};

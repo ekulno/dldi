@@ -48,6 +48,6 @@ auto dldi::DldiCli::compose(int argc, char** argv) -> int {
   }
   const auto output_path{std::filesystem::path{argv[argc - 1]}};
 
-  dldi::DLDI::compose(addition_paths, subtraction_paths, output_path);
+  dldi::DLDI_Composer::compose(addition_paths, subtraction_paths, output_path);
   return EXIT_SUCCESS;
 }

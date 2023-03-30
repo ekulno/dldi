@@ -1,35 +1,21 @@
-#include <algorithm>
-#include <bit>
-#include <cstddef>
-#include <cstdint>
-#include <ctime>
-#include <fcntl.h>
 #include <filesystem>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <sys/mman.h>
-#include <thread>
-#include <vector>
 
-#include <zlib.h>
+#include <DLDI_Composer.hpp>
+#include <DLDI_enums.hpp>
 
-#include <DLDI.hpp>
-
+#include "./Composer.hpp"
 #include "./rdf/SerdParser.hpp"
 #include "./triples/TriplesReader.hpp"
 #include "./triples/TriplesWriter.hpp"
-#include <dictionary/Dictionary.hpp>
-
-#include "./Composer.hpp"
 
 inline auto get_source_info(const std::filesystem::path& path) -> dldi::SourceInfo {
   dldi::SourceInfo info;
   info.path = path;
   if (std::filesystem::is_directory(path)) {
-    info.size = std::filesystem::file_size(dldi::TriplesReader::triples_file_path(path, dldi::TripleOrder::SPO));
+    // todo base on triples
+    info.size = std::filesystem::file_size(dldi::Dictionary::dictionary_file_path(path, dldi::TripleTermPosition::object)) 
+    +std::filesystem::file_size(dldi::Dictionary::dictionary_file_path(path, dldi::TripleTermPosition::subject)) 
+    +std::filesystem::file_size(dldi::Dictionary::dictionary_file_path(path, dldi::TripleTermPosition::predicate));
     info.type = dldi::SourceType::DynamicLinkedDataIndex;
     return info;
   }
@@ -47,9 +33,9 @@ inline auto get_source_info(const std::filesystem::path& path) -> dldi::SourceIn
 }
 namespace dldi {
 
-  auto DLDI::compose(const std::vector<std::filesystem::path>& addition_paths,
-                     const std::vector<std::filesystem::path>& subtraction_paths,
-                     const std::filesystem::path& output_path) -> void {
+  auto DLDI_Composer::compose(const std::vector<std::filesystem::path>& addition_paths,
+                              const std::vector<std::filesystem::path>& subtraction_paths,
+                              const std::filesystem::path& output_path) -> void {
     std::vector<dldi::SourceInfo> additions;
     for (const auto path: addition_paths) {
       additions.push_back(get_source_info(path));
@@ -63,7 +49,7 @@ namespace dldi {
       throw std::runtime_error("Need at least one additive source");
     }
 
-    if (std::filesystem::is_directory(output_path)){
+    if (std::filesystem::is_directory(output_path)) {
       throw std::runtime_error("There is already a directory at " + output_path.string());
     }
     std::filesystem::create_directories(output_path);
@@ -95,30 +81,21 @@ namespace dldi {
   }
 
   auto DLDI::from_ptld(const std::filesystem::path& input_path, const std::filesystem::path& output_path, const std::string& base_iri) -> void {
-    dldi::Dictionary subjects{};
-    dldi::Dictionary predicates{};
-    dldi::Dictionary objects{};
+    dldi::DictionariesHandle dicts{};
     dldi::TriplesWriter triples{};
     rdf::SerdParser parser{
       input_path,
-      [&subjects, &predicates, &objects, &triples](const std::string& subject_str, const std::string& predicate_str, const std::string& object_str) -> void {
-        const auto subject{subjects.add(subject_str, 1)};
-        const auto predicate{predicates.add(predicate_str, 1)};
-        const auto object{objects.add(object_str, 1)};
+      [&dicts, &triples](const std::string& subject_str, const std::string& predicate_str, const std::string& object_str) -> void {
+        const auto subject{dicts.subjects()->add(subject_str, 1)};
+        const auto predicate{dicts.predicates()->add(predicate_str, 1)};
+        const auto object{dicts.objects()->add(object_str, 1)};
         triples.add(subject, predicate, object);
       },
       base_iri,
       parser_type(input_path.extension())};
-
     std::filesystem::create_directory(output_path);
 
-    for (auto order: dldi::EnumMapping::TRIPLE_ORDERS) {
-      triples.sort(subjects, predicates, objects, order);
-      triples.save(dldi::TriplesReader::triples_file_path(output_path, order));
-    }
-
-    subjects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::subject));
-    predicates.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::predicate));
-    objects.save(Dictionary::dictionary_file_path(output_path, dldi::TripleTermPosition::object));
+    triples.save(output_path, dicts);
+    dicts.save(output_path);
   }
 }

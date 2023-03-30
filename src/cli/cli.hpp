@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <DLDI.hpp>
+#include <DLDI_Composer.hpp>
 
 namespace dldi {
   class DldiCli {

@@ -61,10 +61,10 @@ auto dldi::DldiCli::query_terms(int argc, char** argv) -> int {
   if (objects)
     dldi.ensure_loaded(dldi::TripleTermPosition::object);
 
-  auto it{dldi.query(prefix, subjects, predicates, objects)};
+  auto it{dldi.terms(prefix, subjects, predicates, objects)};
 
-  while (it.has_next()) {
-    const auto next{it.next()};
+  while (it->has_next()) {
+    const auto next{it->next()};
     std::cout << next << std::endl;
   }
 
