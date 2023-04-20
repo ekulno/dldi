@@ -8,7 +8,9 @@
 
 namespace dldi {
   DLDI::DLDI(const std::filesystem::path& data_dir)
-    : m_datadir{data_dir} {
+    : m_datadir{data_dir},
+    // not sure why this statement is needed, thought this would be created automatically upon construction...
+    m_dicts{std::make_shared<DictionariesHandle>()}{
     if (!std::filesystem::is_directory(data_dir)) {
       throw std::runtime_error("Not a directory: " + data_dir.string());
     }

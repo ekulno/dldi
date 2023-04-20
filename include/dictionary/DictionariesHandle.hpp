@@ -31,8 +31,10 @@ namespace dldi {
       return m_objects;
     }
 
-    auto ensure_loaded(const dldi::TripleTermPosition& position, const std::filesystem::path& datadir) -> void {
-      if (get_dict(position)) {
+    auto ensure_loaded(const dldi::TripleTermPosition& position, const std::filesystem::path& datadir) -> void {      
+
+      // not very pretty... would be neater to not first construct a empty dict
+      if (get_dict(position)->size()) { 
         return;
       }
 
