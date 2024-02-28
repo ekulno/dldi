@@ -1,10 +1,12 @@
 # Dynamic Linked-Data Index
 
-Source code repository of the Dynamic Linked-Data Index (DLDI), a storage backend for Linked Data. 
+Source code repository of the Dynamic Linked-Data Index (DLDI), a storage backend for Linked Data. Developed as part of my master's project. 
 
 ## Purpose
 
 There is a need for a persistable and queryable linked-data format which supports performant updates. HDT satisfies this, except it does not support performant data removals. This software should satisfy this niche. 
+
+**Discontinued** since [Trident](https://github.com/jrbn/trident) solves the problem in a better way (simultaneous queries over different static structures with on-the-fly mergeable results, combined with merges of the structures in background processes). 
 
 ## Features
 
